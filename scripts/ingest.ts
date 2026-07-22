@@ -1,31 +1,29 @@
 import path from "node:path";
 import { randomUUID } from "node:crypto";
-import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { embedMany } from "ai";
 import { embeddingModel } from "../lib/ai/embeddings";
 import { ensureCollection, upsertChunks, type ChunkPayload } from "../lib/qdrant";
-import { loadSubtitles } from "../lib/srt";
+import { loadSubtitleFiles } from "../lib/srt";
+import { groupBlocksIntoChunks } from "../lib/chunker";
 
 const SUBTITLES_DIR = path.join(process.cwd(), "data", "subtitles");
 const BATCH_SIZE = 50;
 
 async function main() {
   console.log("Loading .srt files from", SUBTITLES_DIR);
-  const subtitles = loadSubtitles(SUBTITLES_DIR);
-  console.log(`Loaded ${subtitles.length} files`);
+  const files = loadSubtitleFiles(SUBTITLES_DIR);
+  console.log(`Loaded ${files.length} files`);
 
-  const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 750,
-    chunkOverlap: 75,
-  });
+  const chunks: (ChunkPayload)[] = [];
 
-  type Chunk = { text: string; source: string };
-  const chunks: Chunk[] = [];
-
-  for (const sub of subtitles) {
-    const pieces = await splitter.splitText(sub.text);
-    for (const piece of pieces) {
-      chunks.push({ text: piece, source: sub.source });
+  for (const file of files) {
+    for (const tc of groupBlocksIntoChunks(file.blocks)) {
+      chunks.push({
+        text: tc.text,
+        source: file.source,
+        startTime: tc.startTime,
+        endTime: tc.endTime,
+      });
     }
   }
 
@@ -34,7 +32,6 @@ async function main() {
 
   for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
     const batch = chunks.slice(i, i + BATCH_SIZE);
-
     const { embeddings } = await embedMany({
       model: embeddingModel,
       values: batch.map((c) => c.text),
@@ -43,7 +40,7 @@ async function main() {
     const points = batch.map((c, idx) => ({
       id: randomUUID(),
       vector: embeddings[idx],
-      payload: { text: c.text, source: c.source } satisfies ChunkPayload,
+      payload: c,
     }));
 
     await upsertChunks(points);

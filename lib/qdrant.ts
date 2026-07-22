@@ -26,6 +26,8 @@ export async function ensureCollection() {
 export type ChunkPayload = {
   text: string;
   source: string;
+  startTime: string;
+  endTime: string;
 };
 
 export async function upsertChunks(
