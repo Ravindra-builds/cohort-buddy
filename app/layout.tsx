@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Outfit } from "next/font/google";
 import { ClerkProvider, Show, SignInButton, UserButton } from '@clerk/nextjs'
 import { ThemeProvider } from "@/components/providers/theme-provider"
 
@@ -15,6 +16,7 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+const outfit = Outfit({ subsets: ["latin"] });
 
 
 export const metadata: Metadata = {
@@ -30,7 +32,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${outfit.className} h-full antialiased`}
     > 
       <body className="h-screen overflow-hidden">
       <div className="flex h-full flex-col">
