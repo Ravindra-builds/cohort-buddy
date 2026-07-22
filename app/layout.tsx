@@ -32,7 +32,8 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     > 
-      <body className="min-h-full flex flex-col">
+      <body className="h-screen overflow-hidden">
+      <div className="flex h-full flex-col">
         
         <ClerkProvider>
           <ThemeProvider
@@ -41,18 +42,21 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-        <header className="flex justify-end items-center p-4 gap-4 h-16">
-            <ModeToggle/>
+        <header className="flex shrink-0 items-center justify-between border-b px-4 py-3">
+        <span className="font-semibold">Cohort-buddy</span>
+            <div className="flex justify-end items-center gap-4">
+              <ModeToggle/>
             <Show when="signed-out">
               <SignInButton />
             </Show>
             <Show when="signed-in">
               <UserButton />
             </Show>
+            </div>
           </header>{children}
          </ThemeProvider>
         </ClerkProvider>
-        
+      </div>
       </body>
     </html>
   );
