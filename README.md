@@ -34,6 +34,7 @@ A Retrieval-Augmented Generation (RAG) chatbot that answers student questions **
 
 ## 🏗️ Architecture / Request Pipeline
 
+```text
 User
   │
   ▼
@@ -74,12 +75,15 @@ Streaming Response
 Client
 ├─ Render Answer
 └─ Deduplicate Citations
+```
 
 The **output is not blocked/re-checked** post-generation (streaming would otherwise have to buffer). Grounding is enforced entirely through the system prompt instructing the model to answer only from provided context.
 
 ---
 
 ## 📁 Project Structure
+
+```text
 
 cohort-buddy/
 ├── app/
@@ -115,7 +119,7 @@ cohort-buddy/
 ├── proxy.ts # Clerk middleware (route protection)
 ├── .sample.env # Environment variable template
 └── package.json
-
+```
 ---
 
 ## ⚙️ Setup
